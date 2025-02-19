@@ -1,2 +1,1 @@
-# BadKeyboard
- Makes your keyboard bad
+# Makes your keyboard bad.
